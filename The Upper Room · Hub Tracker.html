@@ -1,0 +1,1026 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Upper Room · Hub Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ECEFE8; --surface:#FFFFFF; --sunk:#E2E6DD; --ink:#1D2B26; --muted:#5C6B64; --line:#CFD6CB;
+  --green:#1F6B50; --green-ink:#FFFFFF; --green-soft:#D5E7DD;
+  --amber:#C98718; --amber-soft:#F6E6C4; --blue:#2E5C8A; --blue-soft:#D8E4F0; --red:#B0443A; --red-soft:#F3D9D5;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Instrument Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#131A17; --surface:#1B2420; --sunk:#10160F; --ink:#E6ECE7; --muted:#9AA9A1; --line:#2E3A34;
+    --green:#4FB38B; --green-ink:#0E1A15; --green-soft:#1F3A2E;
+    --amber:#E8B04A; --amber-soft:#3A2F17; --blue:#8DB4DE; --blue-soft:#1E2E40; --red:#E07A6E; --red-soft:#3D221F; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131A17; --surface:#1B2420; --sunk:#10160F; --ink:#E6ECE7; --muted:#9AA9A1; --line:#2E3A34;
+  --green:#4FB38B; --green-ink:#0E1A15; --green-soft:#1F3A2E;
+  --amber:#E8B04A; --amber-soft:#3A2F17; --blue:#8DB4DE; --blue-soft:#1E2E40; --red:#E07A6E; --red-soft:#3D221F; color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--display);margin:0;line-height:1.15}
+h2{font-size:1.35rem;font-weight:700;letter-spacing:-.01em}
+h3{font-size:1.02rem;font-weight:700}
+.num{font-variant-numeric:tabular-nums}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--bg);border-bottom:1px solid var(--line)}
+.top-inner{max-width:1180px;margin:0 auto;padding:.8rem 1.1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.brand{display:flex;flex-direction:column}
+.brand strong{font-family:var(--display);font-size:1.25rem;font-weight:800;letter-spacing:-.02em}
+.brand span{font-size:.8rem;color:var(--muted)}
+nav.tabs{display:flex;gap:.25rem;margin-left:auto;background:var(--sunk);padding:.25rem;border-radius:999px}
+nav.tabs button{border:0;background:none;padding:.45rem .95rem;border-radius:999px;cursor:pointer;font-weight:600;color:var(--muted)}
+nav.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 0 var(--line)}
+.sync{font-size:.78rem;color:var(--muted);display:flex;align-items:center;gap:.35rem}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--amber)}
+.dot.ok{background:var(--green)}
+
+main{max-width:1180px;margin:0 auto;padding:1.2rem 1.1rem 5rem}
+.view{display:none}.view.on{display:block}
+.row{display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end}
+.grid2{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:1.25rem}
+@media (max-width:880px){.grid2{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1.1rem}
+.panel + .panel{margin-top:1.25rem}
+.panel-head{display:flex;justify-content:space-between;align-items:baseline;gap:.75rem;margin-bottom:.9rem;flex-wrap:wrap}
+.hint{color:var(--muted);font-size:.85rem}
+label.f{display:flex;flex-direction:column;gap:.25rem;font-size:.82rem;font-weight:600;color:var(--muted);min-width:0}
+input,select{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:.55rem .65rem;min-width:0;width:100%}
+input[type="checkbox"]{width:auto}
+.btn{border:1px solid var(--line);background:var(--surface);padding:.55rem 1rem;border-radius:9px;cursor:pointer;font-weight:600;white-space:nowrap}
+.btn.primary{background:var(--green);border-color:var(--green);color:var(--green-ink)}
+.btn.warn{color:var(--red)}
+.btn.small{padding:.3rem .65rem;font-size:.82rem}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* Today strip */
+.strip{display:flex;gap:2rem;flex-wrap:wrap;padding:.2rem 0 1.2rem}
+.strip div{display:flex;flex-direction:column}
+.strip b{font-family:var(--display);font-size:1.7rem;font-weight:700;letter-spacing:-.02em}
+.strip span{font-size:.82rem;color:var(--muted)}
+
+/* Seat board — the signature */
+.board{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.6rem}
+.seat{border-radius:12px;padding:.75rem;min-height:128px;display:flex;flex-direction:column;gap:.15rem;border:1px dashed var(--line);background:transparent;text-align:left}
+.seat .sn{font-family:var(--display);font-weight:800;font-size:.9rem;color:var(--muted)}
+.seat.free{cursor:pointer;color:var(--muted)}
+.seat.free:hover{border-color:var(--green);color:var(--green)}
+.seat.busy{border:1px solid transparent;background:var(--green);color:var(--green-ink)}
+.seat.busy .sn{color:inherit;opacity:.75}
+.seat.busy.member{background:var(--ink);color:var(--bg)}
+.seat.busy.day{background:var(--amber);color:#1D1608}
+.seat .who{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seat .clock{font-family:var(--display);font-size:1.55rem;font-weight:700;letter-spacing:-.02em;line-height:1.1;margin-top:auto}
+.seat .fee{font-size:.82rem;opacity:.9}
+.seat .acts{display:flex;gap:.3rem;margin-top:.4rem}
+.seat .acts button{flex:1;border:1px solid currentColor;background:transparent;border-radius:7px;padding:.25rem;font-size:.78rem;font-weight:600;cursor:pointer;color:inherit}
+
+/* Floor plan */
+.board{display:grid;grid-template-columns:repeat(var(--cols,5),minmax(0,1fr));gap:.6rem}
+.bigtable{grid-column:1/-1;border:2px solid var(--line);background:var(--sunk);border-radius:38px;padding:1rem 1.2rem;margin:.4rem 0}
+.bt-head{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin-bottom:.7rem}
+.bt-head span{color:var(--muted);font-size:.88rem}
+.bt-head .btn{margin-left:auto}
+.bt-chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.5rem}
+.bt-chips .seat{min-height:112px}
+.bt-empty{color:var(--muted);font-size:.9rem}
+.seat.busy.conf{background:var(--blue);color:var(--surface)}
+.conf-free{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+.conf-rates{display:flex;gap:1.6rem;flex-wrap:wrap}
+.conf-rates div{display:flex;flex-direction:column}
+.conf-rates b{font-family:var(--display);font-size:1.2rem}
+.conf-rates span{font-size:.8rem;color:var(--muted)}
+.conf-live{border-radius:14px;background:var(--blue);color:var(--surface);padding:1rem 1.1rem;display:flex;gap:1.2rem;align-items:center;flex-wrap:wrap}
+.conf-live .clock{font-family:var(--display);font-size:2.2rem;font-weight:700;letter-spacing:-.02em;line-height:1}
+.conf-live .meta{flex:1;min-width:160px}
+.conf-live .meta b{display:block;font-size:1.05rem}
+.conf-live .acts{display:flex;gap:.4rem}
+.conf-live .acts button{border:1px solid currentColor;background:transparent;color:inherit;border-radius:8px;padding:.4rem .8rem;font-weight:600;cursor:pointer}
+.pill.b{background:var(--blue-soft);color:var(--blue)}
+
+/* Menu + cart */
+.menu{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.5rem}
+.item{border:1px solid var(--line);background:var(--bg);border-radius:11px;padding:.7rem;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:.1rem}
+.item:hover{border-color:var(--green)}
+.item b{font-weight:600}
+.item span{color:var(--muted);font-size:.85rem}
+.cat{margin:1rem 0 .45rem;font-size:.85rem;font-weight:600;color:var(--muted)}
+.cat:first-child{margin-top:0}
+.cart-line{display:flex;align-items:center;gap:.5rem;padding:.45rem 0;border-bottom:1px solid var(--line)}
+.cart-line .nm{flex:1}
+.qty{display:flex;align-items:center;gap:.3rem}
+.qty button{width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:var(--bg);cursor:pointer}
+.total{display:flex;justify-content:space-between;align-items:baseline;padding:.8rem 0}
+.total b{font-family:var(--display);font-size:1.6rem}
+.methods{display:flex;gap:.35rem;flex-wrap:wrap}
+.methods button{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:.35rem .8rem;cursor:pointer;font-size:.85rem;font-weight:600}
+.methods button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+/* Tables */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th{text-align:left;font-weight:600;color:var(--muted);font-size:.8rem;padding:.4rem .5rem;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:.55rem .5rem;border-bottom:1px solid var(--line);vertical-align:middle}
+td.r,th.r{text-align:right}
+tr.void td{color:var(--muted);text-decoration:line-through}
+.pill{display:inline-block;padding:.1rem .55rem;border-radius:999px;font-size:.76rem;font-weight:600;white-space:nowrap}
+.pill.g{background:var(--green-soft);color:var(--green)}
+.pill.a{background:var(--amber-soft);color:var(--amber)}
+.pill.r{background:var(--red-soft);color:var(--red)}
+.pill.n{background:var(--sunk);color:var(--muted)}
+
+/* 10x meter */
+.meter{position:relative;height:54px;background:var(--sunk);border-radius:10px;overflow:hidden;margin:1rem 0 .4rem}
+.meter .fill{position:absolute;inset:0 auto 0 0;background:var(--green);transition:width .6s ease}
+.meter .tick{position:absolute;top:0;bottom:0;width:1px;background:var(--bg);opacity:.9}
+.meter .pace{position:absolute;top:0;bottom:0;width:3px;background:var(--amber)}
+.ticks{position:relative;height:1.2rem;font-size:.75rem;color:var(--muted)}
+.ticks span{position:absolute;transform:translateX(-50%)}
+.big-x{font-family:var(--display);font-weight:800;font-size:clamp(2.6rem,7vw,4.2rem);letter-spacing:-.04em;line-height:1}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-top:1.1rem}
+.kpis div{display:flex;flex-direction:column}
+.kpis b{font-family:var(--display);font-size:1.3rem;font-weight:700}
+.kpis span{font-size:.8rem;color:var(--muted)}
+.bars{display:flex;flex-direction:column;gap:.55rem}
+.bar-row{display:grid;grid-template-columns:130px 1fr 90px;gap:.6rem;align-items:center;font-size:.88rem}
+.bar-row .trk{height:10px;background:var(--sunk);border-radius:6px;overflow:hidden}
+.bar-row .trk i{display:block;height:100%;background:var(--green);border-radius:6px}
+.bar-row .v{text-align:right}
+svg.chart{width:100%;height:auto;display:block}
+
+.empty{padding:1.2rem;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px}
+.banner{background:var(--amber-soft);color:var(--ink);border-radius:10px;padding:.6rem .9rem;margin-bottom:1rem;font-size:.88rem;display:none}
+.banner.on{display:block}
+
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);padding:1.3rem;width:min(460px,calc(100vw - 2rem))}
+dialog::backdrop{background:rgba(10,20,15,.45)}
+.dlg-actions{display:flex;justify-content:flex-end;gap:.5rem;margin-top:1.1rem}
+.stack{display:flex;flex-direction:column;gap:.75rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.edit-list .er{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) auto;gap:.4rem;margin-bottom:.4rem}
+.edit-list.plans .er{grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) auto}
+.toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(150%);background:var(--ink);color:var(--bg);padding:.6rem 1.1rem;border-radius:999px;font-weight:600;font-size:.9rem;transition:transform .25s ease;z-index:50}
+.toast.on{transform:translateX(-50%) translateY(0)}
+
+@media (max-width:640px){
+  nav.tabs{position:fixed;left:.6rem;right:.6rem;bottom:calc(.6rem + env(safe-area-inset-bottom,0px));margin:0;justify-content:space-between;box-shadow:0 4px 18px rgba(0,0,0,.18);background:var(--surface);border:1px solid var(--line);z-index:20}
+  nav.tabs button{padding:.5rem .55rem;font-size:.85rem}
+  .bar-row{grid-template-columns:95px 1fr 80px}
+  .board{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .bigtable{border-radius:24px;padding:.9rem}
+  .two{grid-template-columns:1fr}
+  .strip{gap:1.3rem}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <div class="brand"><strong id="bizName">The Upper Room</strong><span id="todayLbl"></span></div>
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-v="desk" aria-selected="true">Desk</button>
+      <button role="tab" data-v="cafe" aria-selected="false">Café</button>
+      <button role="tab" data-v="members" aria-selected="false">Members</button>
+      <button role="tab" data-v="money" aria-selected="false">Money</button>
+      <button role="tab" data-v="setup" aria-selected="false">Setup</button>
+    </nav>
+    <div class="sync"><i class="dot" id="syncDot"></i><span id="syncLbl">Connecting…</span></div>
+  </div>
+</header>
+
+<main>
+  <div class="banner" id="banner"></div>
+
+  <!-- DESK -->
+  <section class="view on" id="v-desk">
+    <div class="strip">
+      <div><b class="num" id="sToday">₱0</b><span>Sales today</span></div>
+      <div><b class="num" id="sIn">0</b><span>People in the space</span></div>
+      <div><b class="num" id="sFree">0</b><span>Seats open</span></div>
+      <div><b class="num" id="sOpen">₱0</b><span>Running, not yet paid</span></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h2>Floor</h2><span class="hint">Tap an open seat to check someone in. Green is hourly, amber is day pass, dark is member.</span></div>
+      <div class="board" id="board"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h2>Conference room</h2><span class="hint" id="confHint"></span></div>
+      <div id="conf"></div>
+    </div>
+  </section>
+
+  <!-- CAFE -->
+  <section class="view" id="v-cafe">
+    <div class="grid2">
+      <div class="panel"><div class="panel-head"><h2>Menu</h2><span class="hint">Edit items and prices in Setup</span></div><div id="menu"></div></div>
+      <div class="panel">
+        <div class="panel-head"><h2>Order</h2><button class="btn small" id="cartClear">Clear</button></div>
+        <div id="cart"></div>
+        <div class="total"><span>Total</span><b class="num" id="cartTotal">₱0</b></div>
+        <div class="stack">
+          <label class="f">Charge to
+            <select id="cartTo"><option value="now">Pay now</option></select>
+          </label>
+          <div id="cartPay"><div class="hint" style="margin-bottom:.35rem">Payment method</div><div class="methods" id="cartMethods"></div></div>
+          <button class="btn primary" id="cartGo">Record sale</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MEMBERS -->
+  <section class="view" id="v-members">
+    <div class="panel">
+      <div class="panel-head"><h2>Members</h2><button class="btn primary" id="addMember">Add member</button></div>
+      <div class="strip" style="padding-bottom:.6rem">
+        <div><b class="num" id="mActive">0</b><span>Active</span></div>
+        <div><b class="num" id="mSoon">0</b><span>Expiring in 3 days</span></div>
+        <div><b class="num" id="mMRR">₱0</b><span>Membership sales this month</span></div>
+      </div>
+      <div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Contact</th><th>Plan</th><th>Valid until</th><th>Status</th><th></th></tr></thead><tbody id="memberRows"></tbody></table></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h2>Office space</h2><button class="btn primary" id="addTenant">Add office tenant</button></div>
+      <p class="hint" style="margin:-.4rem 0 .6rem">For people or companies using The Upper Room as their regular office on a monthly lease.</p>
+      <div class="strip" style="padding-bottom:.6rem">
+        <div><b class="num" id="oCount">0</b><span>Tenants</span></div>
+        <div><b class="num" id="oDue">0</b><span>Rent due or overdue</span></div>
+        <div><b class="num" id="oRent">₱0</b><span>Office rent this month</span></div>
+      </div>
+      <div class="tbl-wrap"><table><thead><tr><th>Tenant</th><th>Office</th><th>Monthly rent</th><th>Next due</th><th>Status</th><th></th></tr></thead><tbody id="tenantRows"></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- MONEY -->
+  <section class="view" id="v-money">
+    <div class="panel">
+      <div class="panel-head"><h2>The 10× goal</h2><span class="hint" id="goalHint"></span></div>
+      <div class="row" style="justify-content:space-between;align-items:flex-end">
+        <div><div class="big-x num" id="xNow">0.0×</div><div class="hint" id="xSub"></div></div>
+        <div style="text-align:right"><div class="hint">Monthly target</div><div class="num" style="font-family:var(--display);font-size:1.5rem;font-weight:700" id="xTarget">—</div></div>
+      </div>
+      <div class="meter" id="meter"><div class="fill" id="meterFill" style="width:0"></div></div>
+      <div class="ticks" id="ticks"></div>
+      <div class="kpis">
+        <div><b class="num" id="kMtd">₱0</b><span>Revenue this month</span></div>
+        <div><b class="num" id="kPace">₱0</b><span>Projected by month end</span></div>
+        <div><b class="num" id="kNeed">₱0</b><span>Needed per day to hit target</span></div>
+        <div><b class="num" id="kNet">₱0</b><span>Profit after expenses</span></div>
+      </div>
+    </div>
+
+    <div class="grid2" style="margin-top:1.25rem">
+      <div class="panel"><div class="panel-head"><h3>Last 6 months</h3><span class="hint">Dashed line is the 10× target</span></div><div id="chart"></div></div>
+      <div class="panel">
+        <div class="panel-head"><h3>This month by stream</h3></div><div class="bars" id="streams"></div>
+        <h3 style="margin:1.3rem 0 .8rem">By payment method</h3><div class="bars" id="methodsBars"></div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:1.25rem">
+      <div class="panel-head">
+        <h3>Transactions</h3>
+        <div class="row" style="gap:.5rem">
+          <input type="date" id="txDay" style="width:auto">
+          <button class="btn small" id="addExpense">Log expense</button>
+          <button class="btn small" id="addOther">Log other income</button>
+          <button class="btn small" id="exportCsv">Export month (CSV)</button>
+        </div>
+      </div>
+      <div class="tbl-wrap"><table><thead><tr><th>Time</th><th>Type</th><th>Details</th><th>Customer</th><th>Method</th><th class="r">Amount</th><th></th></tr></thead><tbody id="txRows"></tbody></table></div>
+      <div class="total" style="border-top:1px solid var(--line);margin-top:.3rem"><span id="txDaySum">Day total</span><b class="num" id="txDayTotal">₱0</b></div>
+    </div>
+  </section>
+
+  <!-- SETUP -->
+  <section class="view" id="v-setup">
+    <div class="grid2">
+      <div>
+        <div class="panel">
+          <h2 style="margin-bottom:.9rem">Rates</h2>
+          <div class="stack">
+            <div class="two">
+              <label class="f">Business name<input id="cfName"></label>
+              <label class="f">Individual seats<input id="cfSeats" type="number" min="0" max="60"></label>
+            </div>
+            <div class="two">
+              <label class="f">Hourly rate (₱)<input id="cfHourly" type="number" min="0"></label>
+              <label class="f">Day pass (₱)<input id="cfDay" type="number" min="0"></label>
+            </div>
+            <div class="two">
+              <label class="f">Bill in blocks of
+                <select id="cfInc"><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">1 hour</option></select>
+              </label>
+              <label class="f">Minimum charge
+                <select id="cfMin"><option value="0">None</option><option value="30">30 minutes</option><option value="60">1 hour</option><option value="120">2 hours</option></select>
+              </label>
+            </div>
+            <label style="display:flex;gap:.5rem;align-items:center;font-size:.9rem"><input type="checkbox" id="cfCap"> Hourly guests never pay more than the day pass</label>
+          </div>
+        </div>
+        <div class="panel">
+          <h2 style="margin-bottom:.4rem">Big table & conference room</h2>
+          <p class="hint" style="margin:0 0 .9rem">Big table guests pay the same hourly and day-pass rates as individual seats. Hourly conference bookings never cost more than the whole-day rate.</p>
+          <div class="stack">
+            <div class="two">
+              <label class="f">Seats at the big table<input id="cfTable" type="number" min="0" max="40"></label>
+              <label class="f">Conference room per hour (₱)<input id="cfConfH" type="number" min="0"></label>
+            </div>
+            <div class="two">
+              <label class="f">Half day, 4 hours (₱)<input id="cfConfHalf" type="number" min="0"></label>
+              <label class="f">Whole day, 8 hours (₱)<input id="cfConfDay" type="number" min="0"></label>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>Membership plans</h2><button class="btn small" id="addPlan">Add plan</button></div>
+          <div class="hint" style="margin-bottom:.6rem">Name, price (₱), days valid</div>
+          <div class="edit-list plans" id="planEdit"></div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <div class="panel-head"><h2>Café menu</h2><button class="btn small" id="addItem">Add item</button></div>
+          <div class="hint" style="margin-bottom:.6rem">Item, price (₱), category</div>
+          <div class="edit-list" id="menuEdit"></div>
+        </div>
+        <div class="panel">
+          <h2 style="margin-bottom:.4rem">10× goal</h2>
+          <p class="hint" style="margin:0 0 .9rem">Enter what the business makes in a normal month today. The target is that number times your multiplier.</p>
+          <div class="two">
+            <label class="f">Current monthly revenue (₱)<input id="cfBase" type="number" min="0"></label>
+            <label class="f">Multiplier<input id="cfMult" type="number" min="1" step="0.5"></label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row" style="justify-content:flex-end;margin-top:1.25rem"><button class="btn primary" id="saveSetup">Save setup</button></div>
+  </section>
+</main>
+
+<!-- Dialogs -->
+<dialog id="dlgIn"><form method="dialog" class="stack" id="formIn">
+  <h2 id="inTitle">Check in</h2>
+  <label class="f"><span id="inNameLbl">Guest name</span><input id="inName" required autocomplete="off"></label>
+  <div class="two" id="inConfWrap" style="display:none">
+    <label class="f">People<input id="inPax" type="number" min="1" value="4"></label>
+    <label class="f">Rate<select id="inPkg"></select></label>
+  </div>
+  <label class="f" id="inTypeWrap">Type
+    <select id="inType"><option value="hourly">Walk-in, hourly</option><option value="day">Day pass</option><option value="member">Member</option></select>
+  </label>
+  <label class="f" id="inMemberWrap" style="display:none">Member<select id="inMember"></select></label>
+  <div class="dlg-actions"><button class="btn" value="cancel" formnovalidate>Cancel</button><button class="btn primary" value="ok">Start timer</button></div>
+</form></dialog>
+
+<dialog id="dlgOut"><form method="dialog" class="stack">
+  <h2 id="outTitle">Check out</h2>
+  <div id="outBody"></div>
+  <div><div class="hint" style="margin-bottom:.35rem">Payment method</div><div class="methods" id="outMethods"></div></div>
+  <div class="dlg-actions"><button class="btn" value="cancel">Cancel</button><button class="btn primary" value="ok" id="outGo">Record payment</button></div>
+</form></dialog>
+
+<dialog id="dlgMember"><form method="dialog" class="stack">
+  <h2 id="memTitle">Add member</h2>
+  <label class="f" id="memNameWrap">Name<input id="memName" autocomplete="off"></label>
+  <label class="f" id="memPhoneWrap">Mobile or email<input id="memPhone" autocomplete="off"></label>
+  <div class="two">
+    <label class="f">Plan<select id="memPlan"></select></label>
+    <label class="f">Starts<input type="date" id="memStart"></label>
+  </div>
+  <div><div class="hint" style="margin-bottom:.35rem">Payment method</div><div class="methods" id="memMethods"></div></div>
+  <div class="hint" id="memSummary"></div>
+  <div class="dlg-actions"><button class="btn" value="cancel">Cancel</button><button class="btn primary" value="ok" id="memGo">Record payment</button></div>
+</form></dialog>
+
+<dialog id="dlgEntry"><form method="dialog" class="stack">
+  <h2 id="entTitle">Log expense</h2>
+  <label class="f">What for<input id="entLabel" autocomplete="off" placeholder="e.g. Coffee beans, Meralco bill"></label>
+  <div class="two">
+    <label class="f">Amount (₱)<input id="entAmt" type="number" min="0" step="0.01"></label>
+    <label class="f" id="entCatWrap">Category
+      <select id="entCat"><option>Supplies & ingredients</option><option>Rent</option><option>Utilities & internet</option><option>Salaries</option><option>Marketing</option><option>Repairs & equipment</option><option>Other</option></select>
+    </label>
+  </div>
+  <div><div class="hint" style="margin-bottom:.35rem">Paid with</div><div class="methods" id="entMethods"></div></div>
+  <div class="dlg-actions"><button class="btn" value="cancel">Cancel</button><button class="btn primary" value="ok">Save</button></div>
+</form></dialog>
+
+<dialog id="dlgTenant"><form method="dialog" class="stack">
+  <h2>Add office tenant</h2>
+  <div class="two">
+    <label class="f">Contact person<input id="tnName" autocomplete="off"></label>
+    <label class="f">Business name<input id="tnBiz" autocomplete="off" placeholder="Optional"></label>
+  </div>
+  <div class="two">
+    <label class="f">Office or desk<input id="tnUnit" autocomplete="off" placeholder="e.g. Office A"></label>
+    <label class="f">Mobile or email<input id="tnPhone" autocomplete="off"></label>
+  </div>
+  <div class="two">
+    <label class="f">Monthly rent (₱)<input id="tnRent" type="number" min="0"></label>
+    <label class="f">Deposit held (₱)<input id="tnDep" type="number" min="0" placeholder="Not counted as sales"></label>
+  </div>
+  <label class="f">Lease starts<input id="tnStart" type="date"></label>
+  <label style="display:flex;gap:.5rem;align-items:center;font-size:.9rem"><input type="checkbox" id="tnPaid" checked> First month's rent paid today</label>
+  <div id="tnPayWrap"><div class="hint" style="margin-bottom:.35rem">Payment method</div><div class="methods" id="tnMethods"></div></div>
+  <div class="dlg-actions"><button class="btn" value="cancel">Cancel</button><button class="btn primary" value="ok">Add tenant</button></div>
+</form></dialog>
+
+<dialog id="dlgRent"><form method="dialog" class="stack">
+  <h2 id="rentTitle">Record rent</h2>
+  <label class="f">Amount (₱)<input id="rentAmt" type="number" min="0"></label>
+  <div class="hint" id="rentHint"></div>
+  <div><div class="hint" style="margin-bottom:.35rem">Payment method</div><div class="methods" id="rentMethods"></div></div>
+  <div class="dlg-actions"><button class="btn" value="cancel">Cancel</button><button class="btn primary" value="ok">Record rent</button></div>
+</form></dialog>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const peso = n => "₱" + (Math.round((n||0)*100)/100).toLocaleString("en-PH",{minimumFractionDigits:0,maximumFractionDigits:2});
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const pad = n => String(n).padStart(2,"0");
+const dayKey = (d=new Date()) => d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const monthKey = (d=new Date()) => d.getFullYear()+"-"+pad(d.getMonth()+1);
+const METHODS = ["Cash","GCash","Maya","Card","Bank transfer"];
+const KINDS = {workspace:"Hourly",daypass:"Day pass",membership:"Membership",conference:"Conference room",office:"Office rent",cafe:"Café",other:"Other income",expense:"Expense"};
+
+const DEFAULTS = {
+  name:"The Upper Room", seats:10, tableSeats:8, confHourly:500, confHalf:1800, confDay:3200, hourly:60, dayPass:350, inc:30, minMin:60, cap:true,
+  baseline:0, mult:10,
+  plans:[
+    {id:"p1",name:"Weekly pass",price:1500,days:7},
+    {id:"p2",name:"Monthly flex",price:4500,days:30},
+    {id:"p3",name:"Monthly dedicated desk",price:6500,days:30}
+  ],
+  menu:[
+    {id:"m1",name:"Americano",price:120,cat:"Coffee"},
+    {id:"m2",name:"Café latte",price:150,cat:"Coffee"},
+    {id:"m3",name:"Spanish latte",price:165,cat:"Coffee"},
+    {id:"m4",name:"Iced cold brew",price:150,cat:"Coffee"},
+    {id:"m5",name:"Matcha latte",price:160,cat:"Non-coffee"},
+    {id:"m6",name:"Iced tea",price:90,cat:"Non-coffee"},
+    {id:"m7",name:"Ensaymada",price:85,cat:"Food"},
+    {id:"m8",name:"Chicken sandwich",price:180,cat:"Food"},
+    {id:"m9",name:"Bottled water",price:35,cat:"Food"}
+  ]
+};
+
+/* ---------------- State + storage layer ---------------- */
+const S = { settings: structuredClone(DEFAULTS), sessions:{}, members:{}, tenants:{}, days:{}, mode:"loading" };
+let db = null;
+const LS_KEY = "hubtracker:v1";
+
+function last6Months(){
+  const out=[], d=new Date(); d.setDate(1);
+  for(let i=5;i>=0;i--){ const x=new Date(d.getFullYear(), d.getMonth()-i, 1); out.push(monthKey(x)); }
+  return out;
+}
+
+function saveLocal(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify({settings:S.settings,sessions:S.sessions,members:S.members,tenants:S.tenants,days:S.days})); }catch(e){}
+}
+function loadLocal(){
+  try{ const raw=localStorage.getItem(LS_KEY); if(raw){ const o=JSON.parse(raw); Object.assign(S,{settings:{...DEFAULTS,...o.settings},sessions:o.sessions||{},members:o.members||{},tenants:o.tenants||{},days:o.days||{}}); } }catch(e){}
+}
+
+const store = {
+  async saveSettings(s){
+    S.settings = s;
+    if(db) await db.doc("config/settings").set(s); else { saveLocal(); renderAll(); }
+  },
+  async putSession(id, data){
+    if(db) await db.doc("sessions/"+id).set(data); else { S.sessions[id]=data; saveLocal(); renderAll(); }
+  },
+  async removeSession(id){
+    if(db) await db.doc("sessions/"+id).delete(); else { delete S.sessions[id]; saveLocal(); renderAll(); }
+  },
+  async putMember(id, data){
+    if(db) await db.doc("members/"+id).set(data); else { S.members[id]=data; saveLocal(); renderAll(); }
+  },
+  async removeMember(id){
+    if(db) await db.doc("members/"+id).delete(); else { delete S.members[id]; saveLocal(); renderAll(); }
+  },
+  async putTenant(id, data){
+    if(db) await db.doc("tenants/"+id).set(data); else { S.tenants[id]=data; saveLocal(); renderAll(); }
+  },
+  async removeTenant(id){
+    if(db) await db.doc("tenants/"+id).delete(); else { delete S.tenants[id]; saveLocal(); renderAll(); }
+  },
+  async addEntries(entries, dk=dayKey()){
+    const map = {}; entries.forEach(e => map[e.id]=e);
+    if(db){
+      const ref = db.doc("days/"+dk);
+      const snap = await ref.get();
+      if(snap.exists) await ref.update({entries:map});
+      else await ref.set({day:dk, month:dk.slice(0,7), entries:map});
+    } else {
+      const d = S.days[dk] || (S.days[dk]={day:dk,month:dk.slice(0,7),entries:{}});
+      Object.assign(d.entries, map); saveLocal(); renderAll();
+    }
+  },
+  async voidEntry(dk, id){
+    if(db) await db.doc("days/"+dk).update({entries:{[id]:{void:true}}});
+    else { S.days[dk].entries[id].void=true; saveLocal(); renderAll(); }
+  }
+};
+
+async function connect(){
+  const timeout = new Promise(r => setTimeout(()=>r(null), 11000));
+  try{ db = await Promise.race([window.claude && window.claude.use ? window.claude.use("db") : Promise.resolve(null), timeout]); }catch(e){ db=null; }
+  if(!db){ S.mode="local"; loadLocal(); setSync(false,"Saved on this device"); showBanner("Shared sync isn't available in this view, so records are saved in this browser only."); renderAll(); return; }
+  S.mode="db"; setSync(true,"Synced");
+  try{
+    const user = await window.claude.use("user");
+    if(user){ const w = await user.can("data.write"); if(w===false) showBanner("You can view this tracker but not record sales. Ask the owner for Contributor access."); }
+  }catch(e){}
+  const onErr = e => { setSync(false,"Sync paused"); if(e && e.code==="revoked") showBanner("Access to this tracker changed. Reload the page."); };
+  db.doc("config/settings").onSnapshot(snap => { S.settings = snap.exists ? {...DEFAULTS, ...snap.data()} : structuredClone(DEFAULTS); renderAll(); }, onErr);
+  db.collection("sessions").onSnapshot(snap => { S.sessions={}; snap.docs.forEach(d=>S.sessions[d.id]=d.data()); renderAll(); }, onErr);
+  db.collection("tenants").onSnapshot(snap => { S.tenants={}; snap.docs.forEach(d=>S.tenants[d.id]=d.data()); renderAll(); }, onErr);
+  db.collection("members").onSnapshot(snap => { S.members={}; snap.docs.forEach(d=>S.members[d.id]=d.data()); renderAll(); }, onErr);
+  db.collection("days").where("month","in",last6Months()).onSnapshot(snap => { S.days={}; snap.docs.forEach(d=>S.days[d.id]=d.data()); renderAll(); }, onErr);
+}
+
+async function run(fn, okMsg){
+  try{ await fn(); if(okMsg) toast(okMsg); }
+  catch(e){
+    const code = e && e.code;
+    if(code==="quota_exceeded") toast("Storage is full. Export and clear old records.");
+    else if(code==="invalid_argument") toast("Not saved: you don't have permission to record here.");
+    else toast("Not saved. Check your connection and try again.");
+    console.error(e);
+  }
+}
+
+/* ---------------- Helpers ---------------- */
+function setSync(ok, txt){ $("#syncDot").classList.toggle("ok", ok); $("#syncLbl").textContent = txt; }
+function showBanner(t){ const b=$("#banner"); b.textContent=t; b.classList.add("on"); }
+let toastT; function toast(t){ const el=$("#toast"); el.textContent=t; el.classList.add("on"); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove("on"),2400); }
+
+function allEntries(filterMonth){
+  const out=[];
+  for(const [dk,d] of Object.entries(S.days)){
+    if(filterMonth && d.month!==filterMonth) continue;
+    for(const e of Object.values(d.entries||{})){ if(e && e.id) out.push({...e, day:dk}); }
+  }
+  return out.sort((a,b)=>a.ts-b.ts);
+}
+const live = e => !e.void;
+const isRev = e => e.kind!=="expense";
+
+function sessionFee(s, now=Date.now()){
+  const cfg=S.settings, mins=(now - s.start)/60000;
+  if(s.type==="member") return 0;
+  if(s.type==="day") return +cfg.dayPass||0;
+  if(s.type==="conference"){
+    const hrs=Math.ceil(Math.max(mins,1)/60), rate=+cfg.confHourly||0;
+    if(s.pkg==="half") return (+cfg.confHalf||0) + Math.max(0,hrs-4)*rate;
+    if(s.pkg==="day") return (+cfg.confDay||0) + Math.max(0,hrs-8)*rate;
+    let f=Math.max(1,hrs)*rate; if(cfg.confDay>0) f=Math.min(f,+cfg.confDay); return f;
+  }
+  const inc=+cfg.inc||30, billed=Math.max(+cfg.minMin||0, Math.ceil(Math.max(mins,1)/inc)*inc);
+  let fee = billed/60*(+cfg.hourly||0);
+  if(cfg.cap && cfg.dayPass>0) fee=Math.min(fee, +cfg.dayPass);
+  return Math.round(fee);
+}
+const tabTotal = s => (s.tab||[]).reduce((a,i)=>a+i.price*i.qty,0);
+function fmtClock(ms){ const m=Math.floor(ms/60000); return Math.floor(m/60)+":"+pad(m%60); }
+function memberStatus(m){
+  const today=dayKey(); if(!m.expiry) return {k:"n",t:"No plan"};
+  if(m.expiry < today) return {k:"r",t:"Expired"};
+  const days=Math.round((new Date(m.expiry)-new Date(today))/864e5);
+  if(days<=3) return {k:"a",t: days===0?"Last day":days+" days left"};
+  return {k:"g",t:"Active"};
+}
+function addDays(dk, n){ const d=new Date(dk+"T00:00:00"); d.setDate(d.getDate()+n); return dayKey(d); }
+
+function methodPicker(el, initial="Cash"){
+  el.dataset.val=initial;
+  el.innerHTML = METHODS.map(m=>`<button type="button" aria-pressed="${m===initial}" data-m="${m}">${m}</button>`).join("");
+  el.onclick = ev => { const b=ev.target.closest("button"); if(!b) return; el.dataset.val=b.dataset.m; el.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", x===b)); };
+}
+
+/* ---------------- Tabs ---------------- */
+$$("nav.tabs button").forEach(b => b.onclick = () => {
+  $$("nav.tabs button").forEach(x=>x.setAttribute("aria-selected", x===b));
+  $$(".view").forEach(v=>v.classList.toggle("on", v.id==="v-"+b.dataset.v));
+  if(b.dataset.v==="setup") fillSetup();
+  window.scrollTo({top:0});
+});
+
+/* ---------------- DESK ---------------- */
+let pendingSeat=null;
+const placeLabel = s => s.seat==="T" ? "Big table" : s.seat==="C" ? "Conference room" : s.seat ? "Seat "+s.seat : "No seat";
+const PKG = {hourly:"Hourly", half:"Half day (4 hrs)", day:"Whole day (8 hrs)"};
+function renderDesk(){
+  const cfg=S.settings, now=Date.now(), n=Math.max(0,+cfg.seats||0), cap=Math.max(0,+cfg.tableSeats||0);
+  const bySeat={}, table=[], extra=[]; let conf=null;
+  for(const [id,s] of Object.entries(S.sessions)){
+    if(s.seat==="C" && !conf) conf=[id,s];
+    else if(s.seat==="T") table.push([id,s]);
+    else if(typeof s.seat==="number" && s.seat<=n && !bySeat[s.seat]) bySeat[s.seat]=[id,s];
+    else extra.push([id,s]);
+  }
+  table.sort((a,b)=>a[1].start-b[1].start);
+  const half=Math.ceil(n/2);
+  const seatHtml = i => bySeat[i] ? seatTile(bySeat[i][0],bySeat[i][1],now)
+    : `<button class="seat free" data-seat="${i}"><span class="sn">Seat ${i}</span><span style="margin-top:auto">Open · check in</span></button>`;
+  let html="";
+  for(let i=1;i<=half;i++) html+=seatHtml(i);
+  if(cap>0 || table.length){
+    html+=`<div class="bigtable"><div class="bt-head"><h3>Big table</h3><span class="num">${table.length} of ${cap} seated · shared</span>
+      <button class="btn small primary" data-seat="T" ${table.length>=cap?"disabled":""}>${table.length>=cap?"Table full":"Seat someone"}</button></div>
+      ${table.length?`<div class="bt-chips">${table.map(([id,s])=>seatTile(id,s,now,true)).join("")}</div>`:`<div class="bt-empty">Nobody at the big table yet.</div>`}</div>`;
+  }
+  for(let i=half+1;i<=n;i++) html+=seatHtml(i);
+  extra.forEach(([id,s])=> html+=seatTile(id,s,now));
+  const board=$("#board"); board.style.setProperty("--cols", Math.max(1,half)); board.innerHTML=html;
+
+  // conference room
+  $("#confHint").textContent = conf ? "" : "Rented by the hour, half day, or whole day";
+  if(!conf){
+    $("#conf").innerHTML = `<div class="conf-free"><div class="conf-rates">
+      <div><b class="num">${peso(cfg.confHourly)}</b><span>Per hour</span></div>
+      <div><b class="num">${peso(cfg.confHalf)}</b><span>Half day, 4 hrs</span></div>
+      <div><b class="num">${peso(cfg.confDay)}</b><span>Whole day, 8 hrs</span></div></div>
+      <button class="btn primary" data-seat="C">Start booking</button></div>`;
+  } else {
+    const [id,s]=conf, fee=sessionFee(s,now), tab=tabTotal(s);
+    $("#conf").innerHTML = `<div class="conf-live"><span class="clock num" >${fmtClock(now-s.start)}</span>
+      <div class="meta"><b>${esc(s.name)}</b><span class="num">${s.pax||1} ${s.pax==1?"person":"people"} · ${PKG[s.pkg]||"Hourly"} · ${peso(fee)}${tab?" + café "+peso(tab):""}</span></div>
+      <div class="acts"><button data-tab="${id}">+ Café</button><button data-out="${id}">End & bill</button></div></div>`;
+  }
+
+  const todays = (S.days[dayKey()] ? Object.values(S.days[dayKey()].entries||{}) : []).filter(e=>e&&!e.void&&isRev(e));
+  $("#sToday").textContent = peso(todays.reduce((a,e)=>a+e.amount,0));
+  const people=Object.values(S.sessions).reduce((a,s)=>a+(s.seat==="C"?(+s.pax||1):1),0);
+  $("#sIn").textContent=people;
+  $("#sFree").textContent=Math.max(0,n-Object.keys(bySeat).length)+Math.max(0,cap-table.length);
+  $("#sOpen").textContent=peso(Object.values(S.sessions).reduce((a,s)=>a+sessionFee(s,now)+tabTotal(s),0));
+}
+function seatTile(id,s,now,atTable){
+  const cls = s.type==="member"?"member":s.type==="day"?"day":s.type==="conference"?"conf":"";
+  const fee = sessionFee(s,now), tab=tabTotal(s);
+  const feeTxt = s.type==="member" ? "Member · free" : s.type==="day" ? "Day pass "+peso(fee) : peso(fee)+" so far";
+  return `<div class="seat busy ${cls}">
+    ${atTable?"":`<span class="sn">${placeLabel(s)}</span>`}
+    <span class="who">${esc(s.name)}</span>
+    <span class="clock num">${fmtClock(now-s.start)}</span>
+    <span class="fee num">${feeTxt}${tab?" + café "+peso(tab):""}</span>
+    <div class="acts"><button data-tab="${id}">+ Café</button><button data-out="${id}">Check out</button></div>
+  </div>`;
+}
+function deskClick(ev){
+  const free=ev.target.closest("[data-seat]"); if(free && !free.disabled){ const v=free.dataset.seat; return openCheckIn(/^\d+$/.test(v)?+v:v); }
+  const out=ev.target.closest("[data-out]"); if(out) return openCheckOut(out.dataset.out);
+  const tab=ev.target.closest("[data-tab]"); if(tab){ $("#cartTo").value=tab.dataset.tab; syncCartTo(); $$("nav.tabs button").find(b=>b.dataset.v==="cafe").click(); }
+}
+$("#board").onclick=deskClick; $("#conf").onclick=deskClick;
+function openCheckIn(seat){
+  pendingSeat=seat; const isConf=seat==="C";
+  $("#inTitle").textContent = isConf ? "Conference room booking" : "Check in · "+placeLabel({seat});
+  $("#inNameLbl").textContent = isConf ? "Booked by (name or company)" : "Guest name";
+  $("#inConfWrap").style.display = isConf?"grid":"none"; $("#inTypeWrap").style.display = isConf?"none":"flex";
+  const c=S.settings;
+  $("#inPkg").innerHTML = `<option value="hourly">Hourly · ${peso(c.confHourly)}/hr</option><option value="half">Half day · ${peso(c.confHalf)}</option><option value="day">Whole day · ${peso(c.confDay)}</option>`;
+  $("#inPax").value=4;
+  $("#inName").value=""; $("#inType").value="hourly"; $("#inMemberWrap").style.display="none";
+  const active = Object.entries(S.members).filter(([,m])=>memberStatus(m).k!=="r").sort((a,b)=>a[1].name.localeCompare(b[1].name));
+  $("#inMember").innerHTML = active.length ? active.map(([id,m])=>`<option value="${id}">${esc(m.name)}</option>`).join("") : `<option value="">No active members</option>`;
+  $("#dlgIn").showModal(); $("#inName").focus();
+}
+$("#inType").onchange = () => {
+  const mem=$("#inType").value==="member"; $("#inMemberWrap").style.display=mem?"flex":"none";
+  if(mem){ const o=$("#inMember").selectedOptions[0]; if(o && o.value) $("#inName").value=o.textContent; }
+};
+$("#inMember").onchange = () => { const o=$("#inMember").selectedOptions[0]; if(o&&o.value) $("#inName").value=o.textContent; };
+$("#dlgIn").addEventListener("close", () => {
+  if($("#dlgIn").returnValue!=="ok") return;
+  const name=$("#inName").value.trim(); if(!name) return toast("Add a name first.");
+  const id=uid();
+  if(pendingSeat==="C"){
+    if(Object.values(S.sessions).some(s=>s.seat==="C")) return toast("The conference room is already in use.");
+    return run(()=>store.putSession(id,{name,seat:"C",type:"conference",pkg:$("#inPkg").value,pax:Math.max(1,+$("#inPax").value||1),start:Date.now(),tab:[]}), "Conference room booked for "+name);
+  }
+  const type=$("#inType").value;
+  if(type==="member" && !$("#inMember").value) return toast("There are no active members to check in.");
+  run(()=>store.putSession(id,{name,seat:pendingSeat,type,memberId:type==="member"?$("#inMember").value:null,start:Date.now(),tab:[]}), name+" checked in");
+});
+
+let outId=null;
+function rateLineFor(s,now){
+  if(s.type==="member") return "Member (covered by plan)";
+  if(s.type==="day") return "Day pass";
+  if(s.type==="conference") return "Conference room · "+(PKG[s.pkg]||"Hourly")+" · used "+fmtClock(now-s.start);
+  return "Hourly · "+fmtClock(now-s.start)+" at "+peso(S.settings.hourly)+"/hr";
+}
+function openCheckOut(id){
+  const s=S.sessions[id]; if(!s) return; outId=id;
+  const now=Date.now(), fee=sessionFee(s,now), tab=tabTotal(s);
+  $("#outTitle").textContent=(s.type==="conference"?"End booking · ":"Check out · ")+s.name;
+  $("#outBody").innerHTML = `<table><tbody>
+    <tr><td>${esc(rateLineFor(s,now))}</td><td class="r num">${peso(fee)}</td></tr>
+    ${(s.tab||[]).map(i=>`<tr><td>${esc(i.name)} × ${i.qty}</td><td class="r num">${peso(i.price*i.qty)}</td></tr>`).join("")}
+  </tbody></table><div class="total"><span>Total due</span><b class="num">${peso(fee+tab)}</b></div>`;
+  $("#outGo").textContent = fee+tab>0 ? "Record payment" : "Check out";
+  methodPicker($("#outMethods"));
+  $("#dlgOut").showModal();
+}
+$("#dlgOut").addEventListener("close", () => {
+  if($("#dlgOut").returnValue!=="ok" || !outId) return;
+  const s=S.sessions[outId]; if(!s) return;
+  const now=Date.now(), fee=sessionFee(s,now), method=$("#outMethods").dataset.val, id=outId;
+  const kind = s.type==="day"?"daypass":s.type==="conference"?"conference":"workspace";
+  const label = s.type==="day"?"Day pass":s.type==="conference"?(PKG[s.pkg]||"Hourly")+" · "+(s.pax||1)+" pax · "+fmtClock(now-s.start):"Hourly · "+fmtClock(now-s.start)+(s.seat==="T"?" · big table":"");
+  const entries=[];
+  if(fee>0) entries.push({id:uid(),ts:now,kind,amount:fee,method,who:s.name,label});
+  if(tabTotal(s)>0) entries.push({id:uid(),ts:now,kind:"cafe",amount:tabTotal(s),method,who:s.name,label:(s.tab||[]).map(i=>i.qty+"× "+i.name).join(", ")});
+  run(async()=>{ if(entries.length) await store.addEntries(entries); await store.removeSession(id); }, s.name+(s.type==="conference"?" billed":" checked out"));
+});
+
+/* ---------------- CAFE ---------------- */
+let cart=[];
+function renderMenu(){
+  const groups={};
+  S.settings.menu.forEach(m=>{ (groups[m.cat||"Other"] ||= []).push(m); });
+  $("#menu").innerHTML = Object.entries(groups).map(([c,items])=>`<div class="cat">${esc(c)}</div><div class="menu">${items.map(m=>`<button class="item" data-add="${m.id}"><b>${esc(m.name)}</b><span class="num">${peso(m.price)}</span></button>`).join("")}</div>`).join("") || `<div class="empty">Add menu items in Setup.</div>`;
+}
+$("#menu").onclick = ev => { const b=ev.target.closest("[data-add]"); if(!b) return; const m=S.settings.menu.find(x=>x.id===b.dataset.add); if(!m) return;
+  const line=cart.find(l=>l.id===m.id); if(line) line.qty++; else cart.push({id:m.id,name:m.name,price:+m.price,qty:1}); renderCart(); };
+function renderCart(){
+  $("#cart").innerHTML = cart.length ? cart.map((l,i)=>`<div class="cart-line"><span class="nm">${esc(l.name)}</span><div class="qty"><button data-dec="${i}" aria-label="Less">−</button><span class="num">${l.qty}</span><button data-inc="${i}" aria-label="More">+</button></div><span class="num" style="width:70px;text-align:right">${peso(l.price*l.qty)}</span></div>`).join("") : `<div class="empty">Tap menu items to start an order.</div>`;
+  $("#cartTotal").textContent = peso(cart.reduce((a,l)=>a+l.price*l.qty,0));
+}
+$("#cart").onclick = ev => { const d=ev.target.closest("[data-dec]"), i=ev.target.closest("[data-inc]");
+  if(d){ const l=cart[+d.dataset.dec]; l.qty--; if(l.qty<=0) cart.splice(+d.dataset.dec,1); } if(i) cart[+i.dataset.inc].qty++; renderCart(); };
+$("#cartClear").onclick = () => { cart=[]; renderCart(); };
+function renderCartTo(){
+  const sel=$("#cartTo"), cur=sel.value;
+  sel.innerHTML = `<option value="now">Pay now</option>` + Object.entries(S.sessions).map(([id,s])=>`<option value="${id}">Add to ${esc(s.name)}'s tab (${placeLabel(s).toLowerCase()})</option>`).join("");
+  sel.value = [...sel.options].some(o=>o.value===cur) ? cur : "now"; syncCartTo();
+}
+function syncCartTo(){ const now=$("#cartTo").value==="now"; $("#cartPay").style.display=now?"block":"none"; $("#cartGo").textContent=now?"Record sale":"Add to tab"; }
+$("#cartTo").onchange = syncCartTo;
+$("#cartGo").onclick = () => {
+  if(!cart.length) return toast("The order is empty.");
+  const to=$("#cartTo").value, total=cart.reduce((a,l)=>a+l.price*l.qty,0), items=cart.map(l=>({...l}));
+  if(to==="now"){
+    const e={id:uid(),ts:Date.now(),kind:"cafe",amount:total,method:$("#cartMethods").dataset.val,who:"Walk-in",label:items.map(i=>i.qty+"× "+i.name).join(", ")};
+    run(()=>store.addEntries([e]), "Sale recorded · "+peso(total)).then(()=>{ cart=[]; renderCart(); });
+  } else {
+    const s=S.sessions[to]; if(!s) return toast("That guest has already checked out.");
+    const tab=[...(s.tab||[])]; items.forEach(it=>{ const x=tab.find(t=>t.id===it.id); if(x) x.qty+=it.qty; else tab.push(it); });
+    run(()=>store.putSession(to,{...s,tab}), "Added to "+s.name+"'s tab").then(()=>{ cart=[]; renderCart(); });
+  }
+};
+
+/* ---------------- MEMBERS ---------------- */
+let memEdit=null;
+function renderMembers(){
+  const rows=Object.entries(S.members).sort((a,b)=>(a[1].expiry||"").localeCompare(b[1].expiry||""));
+  let active=0, soon=0;
+  $("#memberRows").innerHTML = rows.length ? rows.map(([id,m])=>{
+    const st=memberStatus(m); if(st.k!=="r") active++; if(st.k==="a") soon++;
+    const plan=S.settings.plans.find(p=>p.id===m.planId);
+    return `<tr><td><b>${esc(m.name)}</b></td><td>${esc(m.phone||"")}</td><td>${esc(plan?plan.name:(m.planName||"—"))}</td><td class="num">${esc(m.expiry||"—")}</td><td><span class="pill ${st.k}">${st.t}</span></td>
+    <td class="r" style="white-space:nowrap"><button class="btn small" data-renew="${id}">Renew</button> <button class="btn small warn" data-del="${id}">Remove</button></td></tr>`;
+  }).join("") : `<tr><td colspan="6"><div class="empty">No members yet. Add your first one to start tracking renewals.</div></td></tr>`;
+  $("#mActive").textContent=active; $("#mSoon").textContent=soon;
+  $("#mMRR").textContent=peso(allEntries(monthKey()).filter(e=>live(e)&&e.kind==="membership").reduce((a,e)=>a+e.amount,0));
+}
+function openMember(id){
+  memEdit=id; const m=id?S.members[id]:null;
+  $("#memTitle").textContent = m ? "Renew · "+m.name : "Add member";
+  $("#memNameWrap").style.display = m?"none":"flex"; $("#memPhoneWrap").style.display = m?"none":"flex";
+  $("#memName").value=""; $("#memPhone").value="";
+  $("#memPlan").innerHTML = S.settings.plans.map(p=>`<option value="${p.id}">${esc(p.name)} · ${peso(p.price)}</option>`).join("");
+  if(m && m.planId) $("#memPlan").value=m.planId;
+  const today=dayKey();
+  $("#memStart").value = m && m.expiry && m.expiry>=today ? addDays(m.expiry,1) : today;
+  methodPicker($("#memMethods")); memSummary(); $("#dlgMember").showModal();
+}
+function memSummary(){ const p=S.settings.plans.find(x=>x.id===$("#memPlan").value); if(!p) return $("#memSummary").textContent="Add a membership plan in Setup first.";
+  $("#memSummary").textContent = `Valid ${$("#memStart").value} to ${addDays($("#memStart").value, p.days-1)} · ${peso(p.price)}`; }
+$("#memPlan").onchange=memSummary; $("#memStart").onchange=memSummary;
+$("#addMember").onclick=()=>openMember(null);
+$("#memberRows").onclick = ev => {
+  const r=ev.target.closest("[data-renew]"); if(r) return openMember(r.dataset.renew);
+  const d=ev.target.closest("[data-del]"); if(d){ const m=S.members[d.dataset.del]; if(confirm("Remove "+m.name+"? Their past payments stay in your records.")) run(()=>store.removeMember(d.dataset.del),"Member removed"); }
+};
+$("#dlgMember").addEventListener("close", () => {
+  if($("#dlgMember").returnValue!=="ok") return;
+  const p=S.settings.plans.find(x=>x.id===$("#memPlan").value); if(!p) return toast("Add a membership plan in Setup first.");
+  const old=memEdit?S.members[memEdit]:null, name=old?old.name:$("#memName").value.trim();
+  if(!name) return toast("Add the member's name first.");
+  const start=$("#memStart").value||dayKey(), expiry=addDays(start,p.days-1), id=memEdit||uid();
+  const data={...(old||{}), name, phone:old?old.phone:$("#memPhone").value.trim(), planId:p.id, planName:p.name, start, expiry, since: old?.since||start};
+  const e={id:uid(),ts:Date.now(),kind:"membership",amount:+p.price,method:$("#memMethods").dataset.val,who:name,label:p.name+(old?" renewal":" · new")};
+  run(async()=>{ await store.putMember(id,data); await store.addEntries([e]); }, old?name+" renewed":name+" added");
+});
+
+/* ---------------- OFFICE TENANTS ---------------- */
+function addMonths(dk,n){ const d=new Date(dk+"T00:00:00"), day=d.getDate(); d.setDate(1); d.setMonth(d.getMonth()+n); const last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(); d.setDate(Math.min(day,last)); return dayKey(d); }
+function tenantStatus(t){
+  const today=dayKey(), days=Math.round((new Date(t.nextDue)-new Date(today))/864e5);
+  if(days<0) return {k:"r",t:"Overdue "+(-days)+(days===-1?" day":" days")};
+  if(days===0) return {k:"a",t:"Due today"};
+  if(days<=5) return {k:"a",t:"Due in "+days+(days===1?" day":" days")};
+  return {k:"g",t:"Paid up"};
+}
+function renderTenants(){
+  const rows=Object.entries(S.tenants).sort((a,b)=>(a[1].nextDue||"").localeCompare(b[1].nextDue||""));
+  let due=0;
+  $("#tenantRows").innerHTML = rows.length ? rows.map(([id,t])=>{
+    const st=tenantStatus(t); if(st.k!=="g") due++;
+    return `<tr><td><b>${esc(t.name)}</b>${t.biz?`<div class="hint">${esc(t.biz)}</div>`:""}${t.phone?`<div class="hint">${esc(t.phone)}</div>`:""}</td><td>${esc(t.unit||"—")}</td>
+      <td class="num">${peso(t.rent)}${t.deposit?`<div class="hint">Deposit ${peso(t.deposit)} held</div>`:""}</td><td class="num">${esc(t.nextDue)}</td><td><span class="pill ${st.k}">${st.t}</span></td>
+      <td class="r" style="white-space:nowrap"><button class="btn small" data-rent="${id}">Record rent</button> <button class="btn small warn" data-end="${id}">End lease</button></td></tr>`;
+  }).join("") : `<tr><td colspan="6"><div class="empty">No office tenants yet. Add one when someone rents a space as their office.</div></td></tr>`;
+  $("#oCount").textContent=rows.length; $("#oDue").textContent=due;
+  $("#oRent").textContent=peso(allEntries(monthKey()).filter(e=>live(e)&&e.kind==="office").reduce((a,e)=>a+e.amount,0));
+}
+$("#addTenant").onclick = () => {
+  ["#tnName","#tnBiz","#tnUnit","#tnPhone","#tnRent","#tnDep"].forEach(s=>$(s).value="");
+  $("#tnStart").value=dayKey(); $("#tnPaid").checked=true; $("#tnPayWrap").style.display="block";
+  methodPicker($("#tnMethods"), "Bank transfer"); $("#dlgTenant").showModal(); $("#tnName").focus();
+};
+$("#tnPaid").onchange = () => $("#tnPayWrap").style.display = $("#tnPaid").checked?"block":"none";
+$("#dlgTenant").addEventListener("close", () => {
+  if($("#dlgTenant").returnValue!=="ok") return;
+  const name=$("#tnName").value.trim(), rent=+$("#tnRent").value||0;
+  if(!name || !(rent>0)) return toast("Add the tenant's name and monthly rent.");
+  const start=$("#tnStart").value||dayKey(), paid=$("#tnPaid").checked, id=uid();
+  const t={name, biz:$("#tnBiz").value.trim(), unit:$("#tnUnit").value.trim(), phone:$("#tnPhone").value.trim(), rent, deposit:+$("#tnDep").value||0, start, nextDue: paid?addMonths(start,1):start};
+  run(async()=>{ await store.putTenant(id,t); if(paid) await store.addEntries([{id:uid(),ts:Date.now(),kind:"office",amount:rent,method:$("#tnMethods").dataset.val,who:t.biz||name,label:(t.unit||"Office")+" rent · "+start+" to "+addDays(addMonths(start,1),-1)}]); }, name+" added");
+});
+let rentId=null;
+$("#tenantRows").onclick = ev => {
+  const r=ev.target.closest("[data-rent]");
+  if(r){ rentId=r.dataset.rent; const t=S.tenants[rentId];
+    $("#rentTitle").textContent="Record rent · "+(t.biz||t.name); $("#rentAmt").value=t.rent;
+    $("#rentHint").textContent="Covers "+t.nextDue+" to "+addDays(addMonths(t.nextDue,1),-1)+". Next due date moves to "+addMonths(t.nextDue,1)+".";
+    methodPicker($("#rentMethods"),"Bank transfer"); $("#dlgRent").showModal(); return; }
+  const e=ev.target.closest("[data-end]");
+  if(e){ const t=S.tenants[e.dataset.end]; if(confirm("End "+(t.biz||t.name)+"'s lease? Their past rent payments stay in your records."+(t.deposit?" Remember to settle the "+peso(t.deposit)+" deposit.":""))) run(()=>store.removeTenant(e.dataset.end),"Lease ended"); }
+};
+$("#dlgRent").addEventListener("close", () => {
+  if($("#dlgRent").returnValue!=="ok" || !rentId) return;
+  const t=S.tenants[rentId], amt=+$("#rentAmt").value||0; if(!t) return; if(!(amt>0)) return toast("Enter the amount paid.");
+  const id=rentId, from=t.nextDue, next=addMonths(from,1);
+  run(async()=>{ await store.putTenant(id,{...t,nextDue:next}); await store.addEntries([{id:uid(),ts:Date.now(),kind:"office",amount:amt,method:$("#rentMethods").dataset.val,who:t.biz||t.name,label:(t.unit||"Office")+" rent · "+from+" to "+addDays(next,-1)}]); }, "Rent recorded");
+});
+
+/* ---------------- MONEY ---------------- */
+function renderMoney(){
+  const cfg=S.settings, mk=monthKey(), now=new Date();
+  const month=allEntries(mk).filter(live);
+  const rev=month.filter(isRev).reduce((a,e)=>a+e.amount,0), exp=month.filter(e=>!isRev(e)).reduce((a,e)=>a+e.amount,0);
+  const dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate(), dom=now.getDate();
+  const pace=rev/dom*dim, base=+cfg.baseline||0, mult=+cfg.mult||10, target=base*mult;
+  $("#kMtd").textContent=peso(rev); $("#kPace").textContent=peso(Math.round(pace));
+  $("#kNet").textContent=peso(rev-exp); $("#kNet").style.color = rev-exp<0?"var(--red)":"";
+  if(base>0){
+    const x=rev/base;
+    $("#xNow").textContent=x.toFixed(1)+"×"; $("#xSub").textContent=`of your ${peso(base)} baseline so far this month · on pace for ${(pace/base).toFixed(1)}×`;
+    $("#xTarget").textContent=peso(target); $("#goalHint").textContent=`Goal: ${mult}× your current monthly revenue`;
+    const left=Math.max(0,target-rev), daysLeft=dim-dom+1; $("#kNeed").textContent=peso(Math.ceil(left/daysLeft));
+    $("#meterFill").style.width=Math.min(100,rev/target*100)+"%";
+    let ticks="", lbl=""; for(let i=1;i<=mult;i++){ const p=i/mult*100; if(i<mult) ticks+=`<i class="tick" style="left:${p}%"></i>`; if(mult<=12||i%2===0) lbl+=`<span style="left:${p}%">${i}×</span>`; }
+    ticks+=`<i class="pace" style="left:${Math.min(99.5,pace/target*100)}%" title="Month-end projection"></i>`;
+    $("#meter").innerHTML=`<div class="fill" style="width:${Math.min(100,rev/target*100)}%"></div>`+ticks; $("#ticks").innerHTML=lbl;
+  } else {
+    $("#xNow").textContent="—"; $("#xSub").textContent="Set your current monthly revenue in Setup to start measuring toward 10×."; $("#xTarget").textContent="—"; $("#kNeed").textContent="—";
+    $("#meter").innerHTML=`<div class="fill" style="width:0"></div>`; $("#ticks").innerHTML=""; $("#goalHint").textContent="";
+  }
+
+  // streams
+  const streams=[["workspace","Hourly seats"],["daypass","Day passes"],["membership","Memberships"],["conference","Conference room"],["office","Office rent"],["cafe","Café"],["other","Other income"]];
+  const sv=streams.map(([k,l])=>[l,month.filter(e=>e.kind===k).reduce((a,e)=>a+e.amount,0)]);
+  bars("#streams", sv, rev);
+  bars("#methodsBars", METHODS.map(m=>[m,month.filter(e=>isRev(e)&&e.method===m).reduce((a,e)=>a+e.amount,0)]), rev);
+
+  // chart
+  const months=last6Months(), vals=months.map(m=>allEntries(m).filter(e=>live(e)&&isRev(e)).reduce((a,e)=>a+e.amount,0));
+  const max=Math.max(target, ...vals, 1)*1.08, W=560, H=220, pl=8, pb=26, bw=(W-pl*2)/6;
+  let svg=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Revenue for the last six months">`;
+  vals.forEach((v,i)=>{ const h=(H-pb-10)*v/max, x=pl+i*bw+bw*.18, y=H-pb-h;
+    svg+=`<rect x="${x}" y="${y}" width="${bw*.64}" height="${Math.max(h,1)}" rx="5" fill="${i===5?"var(--green)":"var(--green-soft)"}"/>`;
+    svg+=`<text x="${x+bw*.32}" y="${H-8}" text-anchor="middle" font-size="12" fill="var(--muted)">${new Date(months[i]+"-01T00:00:00").toLocaleString("en",{month:"short"})}</text>`;
+    if(v>0) svg+=`<text x="${x+bw*.32}" y="${y-5}" text-anchor="middle" font-size="11" fill="var(--ink)">${v>=1000?(v/1000).toFixed(v>=10000?0:1)+"k":Math.round(v)}</text>`;
+  });
+  if(target>0){ const y=H-pb-(H-pb-10)*target/max; svg+=`<line x1="${pl}" x2="${W-pl}" y1="${y}" y2="${y}" stroke="var(--amber)" stroke-width="2" stroke-dasharray="6 5"/>`; }
+  $("#chart").innerHTML=svg+"</svg>";
+
+  renderTx();
+}
+function bars(sel, rows, total){
+  $(sel).innerHTML = rows.map(([l,v])=>`<div class="bar-row"><span>${esc(l)}</span><span class="trk"><i style="width:${total?v/total*100:0}%"></i></span><span class="v num">${peso(v)}</span></div>`).join("");
+}
+function renderTx(){
+  const dk=$("#txDay").value||dayKey(), d=S.days[dk];
+  const list=d?Object.values(d.entries||{}).filter(e=>e&&e.id).sort((a,b)=>b.ts-a.ts):[];
+  $("#txRows").innerHTML = list.length ? list.map(e=>{
+    const pill = e.kind==="expense"?"r":e.kind==="cafe"?"a":e.kind==="membership"||e.kind==="office"?"n":e.kind==="conference"?"b":"g";
+    return `<tr class="${e.void?"void":""}"><td class="num">${new Date(e.ts).toLocaleTimeString("en-PH",{hour:"numeric",minute:"2-digit"})}</td><td><span class="pill ${pill}">${KINDS[e.kind]||e.kind}</span></td><td>${esc(e.label)}</td><td>${esc(e.who||"")}</td><td>${esc(e.method||"")}</td><td class="r num">${e.kind==="expense"?"−":""}${peso(e.amount)}</td>
+    <td class="r">${e.void?`<span class="hint">Voided</span>`:`<button class="btn small warn" data-void="${e.id}">Void</button>`}</td></tr>`;
+  }).join("") : `<tr><td colspan="7"><div class="empty">Nothing recorded on this day.</div></td></tr>`;
+  const live_=list.filter(live), r=live_.filter(isRev).reduce((a,e)=>a+e.amount,0), x=live_.filter(e=>!isRev(e)).reduce((a,e)=>a+e.amount,0);
+  $("#txDaySum").textContent = x ? `Sales ${peso(r)} · expenses ${peso(x)} · net` : "Sales for the day";
+  $("#txDayTotal").textContent=peso(r-x);
+}
+$("#txDay").value=dayKey(); $("#txDay").onchange=renderTx;
+$("#txRows").onclick = ev => { const b=ev.target.closest("[data-void]"); if(!b) return;
+  if(confirm("Void this transaction? It stays in the list but no longer counts toward totals.")) run(()=>store.voidEntry($("#txDay").value||dayKey(), b.dataset.void),"Transaction voided"); };
+
+let entryKind="expense";
+function openEntry(kind){ entryKind=kind; $("#entTitle").textContent= kind==="expense"?"Log expense":"Log other income";
+  $("#entCatWrap").style.display = kind==="expense"?"flex":"none"; $("#entLabel").placeholder = kind==="expense"?"e.g. Coffee beans, Meralco bill":"e.g. Meeting room rental, event booking";
+  $("#entLabel").value=""; $("#entAmt").value=""; methodPicker($("#entMethods")); $("#dlgEntry").showModal(); }
+$("#addExpense").onclick=()=>openEntry("expense"); $("#addOther").onclick=()=>openEntry("other");
+$("#dlgEntry").addEventListener("close", () => {
+  if($("#dlgEntry").returnValue!=="ok") return;
+  const amt=parseFloat($("#entAmt").value), label=$("#entLabel").value.trim();
+  if(!(amt>0)||!label) return toast("Add a description and an amount.");
+  const dk=$("#txDay").value||dayKey();
+  const e={id:uid(),ts:Date.now(),kind:entryKind,amount:amt,method:$("#entMethods").dataset.val,who:"",label: entryKind==="expense" ? label+" · "+$("#entCat").value : label};
+  run(()=>store.addEntries([e], dk), entryKind==="expense"?"Expense logged":"Income logged");
+});
+
+$("#exportCsv").onclick = async () => {
+  const rows=[["Date","Time","Type","Details","Customer","Method","Amount","Voided"]];
+  allEntries(monthKey()).forEach(e=>rows.push([e.day,new Date(e.ts).toLocaleTimeString("en-PH"),KINDS[e.kind]||e.kind,e.label,e.who||"",e.method||"",(e.kind==="expense"?-1:1)*e.amount,e.void?"yes":""]));
+  const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+  let dl=null; try{ dl=await window.claude?.use?.("downloads"); }catch(e){}
+  if(!dl) return toast("Downloads aren't available in this view.");
+  try{ await dl.save({filename:"hub-transactions-"+monthKey()+".csv", data:csv}); }catch(e){ if(e?.code!=="declined") toast("Couldn't export the file."); }
+};
+
+/* ---------------- SETUP ---------------- */
+let draftPlans=[], draftMenu=[];
+function fillSetup(){
+  const c=S.settings;
+  $("#cfName").value=c.name; $("#cfSeats").value=c.seats; $("#cfTable").value=c.tableSeats; $("#cfConfH").value=c.confHourly; $("#cfConfHalf").value=c.confHalf; $("#cfConfDay").value=c.confDay; $("#cfHourly").value=c.hourly; $("#cfDay").value=c.dayPass;
+  $("#cfInc").value=String(c.inc); $("#cfMin").value=String(c.minMin); $("#cfCap").checked=!!c.cap;
+  $("#cfBase").value=c.baseline||""; $("#cfMult").value=c.mult||10;
+  draftPlans=structuredClone(c.plans); draftMenu=structuredClone(c.menu); renderEditLists();
+}
+function renderEditLists(){
+  $("#planEdit").innerHTML = draftPlans.map((p,i)=>`<div class="er"><input data-p="${i}" data-k="name" value="${esc(p.name)}" aria-label="Plan name"><input data-p="${i}" data-k="price" type="number" value="${p.price}" aria-label="Price"><input data-p="${i}" data-k="days" type="number" value="${p.days}" aria-label="Days valid"><button class="btn small warn" data-rp="${i}" aria-label="Remove plan">✕</button></div>`).join("") || `<div class="hint">No plans yet.</div>`;
+  $("#menuEdit").innerHTML = draftMenu.map((m,i)=>`<div class="er"><input data-m="${i}" data-k="name" value="${esc(m.name)}" aria-label="Item"><input data-m="${i}" data-k="price" type="number" value="${m.price}" aria-label="Price"><input data-m="${i}" data-k="cat" value="${esc(m.cat)}" aria-label="Category"><button class="btn small warn" data-rm="${i}" aria-label="Remove item">✕</button></div>`).join("") || `<div class="hint">No items yet.</div>`;
+}
+$("#planEdit").oninput = ev => { const t=ev.target; if(t.dataset.p==null) return; const p=draftPlans[+t.dataset.p]; p[t.dataset.k] = t.type==="number"?+t.value:t.value; };
+$("#menuEdit").oninput = ev => { const t=ev.target; if(t.dataset.m==null) return; const m=draftMenu[+t.dataset.m]; m[t.dataset.k] = t.type==="number"?+t.value:t.value; };
+$("#planEdit").onclick = ev => { const b=ev.target.closest("[data-rp]"); if(b){ draftPlans.splice(+b.dataset.rp,1); renderEditLists(); } };
+$("#menuEdit").onclick = ev => { const b=ev.target.closest("[data-rm]"); if(b){ draftMenu.splice(+b.dataset.rm,1); renderEditLists(); } };
+$("#addPlan").onclick = () => { draftPlans.push({id:uid(),name:"New plan",price:0,days:30}); renderEditLists(); };
+$("#addItem").onclick = () => { draftMenu.push({id:uid(),name:"New item",price:0,cat:"Coffee"}); renderEditLists(); };
+$("#saveSetup").onclick = () => {
+  const s={
+    name:$("#cfName").value.trim()||DEFAULTS.name, seats:Math.max(0,Math.min(60,+$("#cfSeats").value||0)), tableSeats:Math.max(0,Math.min(40,+$("#cfTable").value||0)),
+    confHourly:+$("#cfConfH").value||0, confHalf:+$("#cfConfHalf").value||0, confDay:+$("#cfConfDay").value||0,
+    hourly:+$("#cfHourly").value||0, dayPass:+$("#cfDay").value||0, inc:+$("#cfInc").value, minMin:+$("#cfMin").value, cap:$("#cfCap").checked,
+    baseline:+$("#cfBase").value||0, mult:Math.max(1,+$("#cfMult").value||10),
+    plans:draftPlans.filter(p=>p.name.trim()).map(p=>({...p,price:+p.price||0,days:Math.max(1,+p.days||1)})),
+    menu:draftMenu.filter(m=>m.name.trim()).map(m=>({...m,price:+m.price||0,cat:(m.cat||"Other").trim()}))
+  };
+  run(()=>store.saveSettings(s),"Setup saved");
+};
+
+/* ---------------- Render ---------------- */
+function renderAll(){
+  $("#bizName").textContent=S.settings.name;
+  document.title = S.settings.name+" · Hub Tracker";
+  $("#todayLbl").textContent=new Date().toLocaleDateString("en-PH",{weekday:"long",month:"long",day:"numeric"});
+  renderDesk(); renderMenu(); renderCartTo(); renderMembers(); renderTenants(); renderMoney();
+}
+setInterval(()=>{ if($("#v-desk").classList.contains("on")) renderDesk(); }, 20000);
+
+methodPicker($("#cartMethods")); renderCart(); renderAll(); connect();
+})();
+</script>
+</body>
+</html>
