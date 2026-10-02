@@ -9,6 +9,7 @@ office tenants, payments, and the 10× revenue goal.
 | Path | What it is |
 |---|---|
 | `index.html` | The app (single file) |
+| `sw.js` | Offline support: the app opens and works with no internet after the first visit |
 | `manifest.webmanifest` | Lets staff install it to their phone or tablet home screen |
 | `assets/favicon.ico`, `assets/favicon.svg`, `assets/favicon-32.png` | Browser tab icon |
 | `assets/apple-touch-icon.png` | iPhone / iPad home screen icon |
@@ -24,3 +25,9 @@ Illustrator, Canva or Figma without installing any fonts.
 
 Records are currently saved in the browser of the device that records them.
 Use one main device and download a backup from **Setup → Backup** daily.
+
+## Updating the app
+
+When you upload a new `index.html`, also open `sw.js` and change `upper-room-v1`
+to `upper-room-v2` (then v3, and so on). Tablets pick up the new version the next
+time they open the app while online.

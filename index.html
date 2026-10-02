@@ -13,7 +13,13 @@
 <meta name="apple-mobile-web-app-title" content="Upper Room">
 <meta property="og:title" content="The Upper Room · Hub Tracker">
 <meta property="og:description" content="Coworking · Coffee · Quezon City">
-<meta property="og:image" content="assets/og-image.png">
+<meta property="og:image" content="https://theupperroom.socellerate.digital/assets/og-image.png">
+<meta property="og:url" content="https://theupperroom.socellerate.digital/">
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js", { scope: "/" });
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1063,6 +1069,7 @@ function renderAll(){
 }
 setInterval(()=>{ if($("#v-desk").classList.contains("on")) renderDesk(); }, 20000);
 
+try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
 methodPicker($("#cartMethods")); showLastBackup(); renderCart(); renderAll(); connect();
 })();
 </script>

@@ -2,8 +2,8 @@
   "name": "The Upper Room Tracker",
   "short_name": "Upper Room",
   "description": "Seats, caf\u00e9, memberships, conference room and office rent tracker",
-  "start_url": "./",
-  "scope": "./",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#EEF0E9",
@@ -27,5 +27,11 @@
       "type": "image/png",
       "purpose": "maskable"
     }
+  ],
+  "id": "/",
+  "lang": "en-PH",
+  "categories": [
+    "business",
+    "productivity"
   ]
 }
